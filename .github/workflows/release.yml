@@ -1,8 +1,8 @@
 name: Build Portable C Kids Learn
 
 on:
-  push:        
-    branches: [ main ] 
+  push:
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -15,58 +15,55 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create temp folder
-        shell: pwsh
-        run: |
-          if (-Not (Test-Path .\temp)) { New-Item -ItemType Directory -Path .\temp | Out-Null }
-          $env:TEMP_PATH = (Resolve-Path .\temp).Path
-          Write-Host "TEMP_PATH set to $env:TEMP_PATH"
-
-
-      - name: Download Portable Python
+      - name: Creating portable python
         shell: pwsh
         run: |
           $pythonVer = "3.13.5"
           $pythonUrl = "https://www.python.org/ftp/python/$pythonVer/python-$pythonVer-embed-amd64.zip"
-          Write-Host "> Downloading Python v$pythonVer..."
-          Invoke-WebRequest -Uri $pythonUrl -OutFile "$env:TEMP_PATH\python-$pythonVer-embed.zip"
-          Write-Host "> Unpacking Python..."
-          Expand-Archive -Path "$env:TEMP_PATH\python-$pythonVer-embed.zip" -DestinationPath "$env:TEMP_PATH\python-win"
-
-      - name: Install pip
-        shell: pwsh
-        run: |
           $pipUrl = "https://bootstrap.pypa.io/get-pip.py"
+          $tempPath = ".\temp"
+
+          if (-Not (Test-Path $tempPath)) {
+              New-Item -ItemType Directory -Path $tempPath | Out-Null
+          }
+          Set-Location $tempPath
+
+          # Download+Unpack Python
+          Write-Host "> Downloading Python v$pythonVer..."
+          Invoke-WebRequest -Uri $pythonUrl -OutFile "python-$pythonVer-embed.zip"
+          Write-Host "> Unpacking Python..."
+          Expand-Archive -Path "python-$pythonVer-embed.zip" -DestinationPath ".\python-win"
+
+          # Download and install pip
           Write-Host "> Downloading pip..."
-          Invoke-WebRequest -Uri $pipUrl -OutFile "$env:TEMP_PATH\get-pip.py"
+          Invoke-WebRequest -Uri $pipUrl -OutFile "get-pip.py"
           Write-Host "> Installing pip..."
-          & "$env:TEMP_PATH\python-win\python.exe" "$env:TEMP_PATH\get-pip.py"
+          python-win/python.exe get-pip.py
 
-      - name: Configure _pth for portability
-        shell: pwsh
-        run: |
-          Write-Host "> Configuring portability..."
-          $pthFile = (Get-ChildItem "$env:TEMP_PATH\python-win" -Filter "python*._pth" | Select-Object -First 1).FullName
-          $zipName = (Get-ChildItem "$env:TEMP_PATH\python-win" -Filter "python*.zip" | Select-Object -First 1).Name
-          Set-Content -Path $pthFile -Value ("$zipName`n..`nlibs`nimport site")
-
-      - name: Install dependencies
-        shell: pwsh
-        run: |
+          # Install requirements
           Write-Host "> Installing requirements..."
-          & "$env:TEMP_PATH\python-win\python.exe" -m pip install -r requirements.txt --target "$env:TEMP_PATH\python-win\libs"
+          python-win/python.exe -m pip install -r "$env:GITHUB_WORKSPACE\requirements.txt" --target python-win/libs
 
-      - name: Remove Python cache files
-        shell: pwsh
-        run: |
-          Write-Host "> Removing cache files..."
-          Get-ChildItem "$env:TEMP_PATH\python-win\libs" -Include *.pyc,__pycache__ -Recurse | Remove-Item -Force -Recurse
+          # Clean caches to reduce size
+          Get-ChildItem python-win/libs -Include *.pyc,__pycache__ -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
-      - name: Move Python to project root
-        shell: pwsh
-        run: |
-          Move-Item -Path "$env:TEMP_PATH\python-win" -Destination "python-win" -Force
-          Remove-Item -Path $env:TEMP_PATH -Recurse -Force
+          # Configure _pth for portability
+          Write-Host "> Configuring portability..."
+          $pthFile = (Get-ChildItem python-win -Filter "python*._pth" | Select-Object -First 1).FullName
+          $zipName = (Get-ChildItem python-win -Filter "python*.zip" | Select-Object -First 1).Name
+          Set-Content -Path $pthFile -Value @"
+          $zipName
+          ..
+          libs
+          import site
+          "@
+
+          # Move portable Python to project root
+          Move-Item -Path ".\python-win" -Destination "..\python-win" -Force
+
+          # Cleanup temp folder
+          Set-Location ".."
+          Remove-Item -Path $tempPath -Recurse -Force -ErrorAction SilentlyContinue
 
       - name: Create portable launch file
         shell: pwsh
