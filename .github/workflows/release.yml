@@ -95,8 +95,7 @@ jobs:
         with:
           tag_name: latest
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to 'Latest' release
         uses: svenstaro/upload-release-action@v2
