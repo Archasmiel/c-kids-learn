@@ -1,4 +1,4 @@
-name: Build Portable Medi
+name: Build Portable C Kids Learn
 
 on:
   push:        
@@ -15,67 +15,72 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Paths setup and folder creation
+      - name: Create temp folder
         shell: pwsh
         run: |
-          Write-Host "> Variables and folders setup..."
-          $pythonVer = "3.13.5"
-          $pythonUrl = "https://www.python.org/ftp/python/$pythonVer/python-$pythonVer-embed-amd64.zip"
-          $pipUrl = "https://bootstrap.pypa.io/get-pip.py"
-          $tempPath = ".\temp"
-
-          if (-Not (Test-Path $tempPath)) { New-Item -ItemType Directory -Path $tempPath | Out-Null }
-          Set-Location $tempPath
+          $env:TEMP_PATH = "$(Resolve-Path .\temp)"
+          if (-Not (Test-Path $env:TEMP_PATH)) { New-Item -ItemType Directory -Path $env:TEMP_PATH | Out-Null }
 
       - name: Download Portable Python
         shell: pwsh
         run: |
+          $pythonVer = "3.13.5"
+          $pythonUrl = "https://www.python.org/ftp/python/$pythonVer/python-$pythonVer-embed-amd64.zip"
           Write-Host "> Downloading Python v$pythonVer..."
-          Invoke-WebRequest -Uri $pythonUrl -OutFile "python-$pythonVer-embed.zip"
+          Invoke-WebRequest -Uri $pythonUrl -OutFile "$env:TEMP_PATH\python-$pythonVer-embed.zip"
           Write-Host "> Unpacking Python..."
-          Expand-Archive -Path "python-$pythonVer-embed.zip" -DestinationPath ".\python-win"
-
-      - name: Configure _pth
-        shell: pwsh
-        run: |
-          Write-Host "> Configuring portability..."
-          $pthFile = (Get-ChildItem python-win -Filter "python*._pth" | Select-Object -First 1).FullName
-          $zipName = (Get-ChildItem python-win -Filter "python*.zip" | Select-Object -First 1).Name
-          Set-Content -Path $pthFile -Value ("$zipName`n..`nlibs`nimport site")
+          Expand-Archive -Path "$env:TEMP_PATH\python-$pythonVer-embed.zip" -DestinationPath "$env:TEMP_PATH\python-win"
 
       - name: Install pip
         shell: pwsh
         run: |
+          $pipUrl = "https://bootstrap.pypa.io/get-pip.py"
           Write-Host "> Downloading pip..."
-          Invoke-WebRequest -Uri $pipUrl -OutFile "get-pip.py"
+          Invoke-WebRequest -Uri $pipUrl -OutFile "$env:TEMP_PATH\get-pip.py"
           Write-Host "> Installing pip..."
-          python-win/python.exe get-pip.py
-      
-      - name: Install dependencies
-        shell: pwsh
-        run: | 
-          Write-Host "> Downloading requirements..."
-          python-win/python.exe -m pip install -r ../requirements.txt --target python-win/libs
+          & "$env:TEMP_PATH\python-win\python.exe" "$env:TEMP_PATH\get-pip.py"
 
-      - name: Move python to folder and remove temp files
+      - name: Configure _pth for portability
         shell: pwsh
         run: |
-          Write-Host "> Removing old files and placing the python-portable..."
-          Move-Item -Path ".\python-win" -Destination "..\python-win" -Force
-          Set-Location ".."
-          Remove-Item -Path $tempPath -Recurse
-          
+          Write-Host "> Configuring portability..."
+          $pthFile = (Get-ChildItem "$env:TEMP_PATH\python-win" -Filter "python*._pth" | Select-Object -First 1).FullName
+          $zipName = (Get-ChildItem "$env:TEMP_PATH\python-win" -Filter "python*.zip" | Select-Object -First 1).Name
+          Set-Content -Path $pthFile -Value ("$zipName`n..`nlibs`nimport site")
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          Write-Host "> Installing requirements..."
+          & "$env:TEMP_PATH\python-win\python.exe" -m pip install -r requirements.txt --target "$env:TEMP_PATH\python-win\libs"
+
+      - name: Remove Python cache files
+        shell: pwsh
+        run: |
+          Write-Host "> Removing cache files..."
+          Get-ChildItem "$env:TEMP_PATH\python-win\libs" -Include *.pyc,__pycache__ -Recurse | Remove-Item -Force -Recurse
+
+      - name: Move Python to project root
+        shell: pwsh
+        run: |
+          Move-Item -Path "$env:TEMP_PATH\python-win" -Destination "python-win" -Force
+          Remove-Item -Path $env:TEMP_PATH -Recurse -Force
+
       - name: Create portable launch file
         shell: pwsh
-        run: Set-Content -Path launch-win.bat -Value ("@echo off`ncd /d ""%~dp0""`npython-win\python.exe run.py")
+        run: |
+          Set-Content -Path launch-win.bat -Value "@echo off`ncd /d ""%~dp0""`npython-win\python.exe run.py"
 
       - name: Remove unnecessary files
         shell: pwsh
         run: |
-          Remove-Item -Recurse -Force .git, .github, __pycache__, subscripts -ErrorAction SilentlyContinue
-          Remove-Item .gitignore, python-win.zip, get-pip.py, medi.zip -Force -ErrorAction SilentlyContinue
+          Write-Host "> Cleaning unnecessary files..."
+          $toRemove = @('.git', '.github', '__pycache__', 'subscripts', '.gitignore', 'python-win.zip', 'get-pip.py', 'medi.zip', 'requirements.txt')
+          foreach ($item in $toRemove) {
+            if (Test-Path $item) { Remove-Item -Recurse -Force $item -ErrorAction SilentlyContinue }
+          }
 
-      - name: Move files to one directory
+      - name: Move files to portable directory
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path medi | Out-Null
@@ -84,7 +89,8 @@ jobs:
       - name: Create portable zip
         shell: pwsh
         run: |
-          Compress-Archive -Path medi -DestinationPath medi.zip
+          Write-Host "> Creating medi.zip..."
+          Compress-Archive -Path medi\* -DestinationPath medi.zip -Force
 
       - name: Upload to 'Latest' release
         uses: svenstaro/upload-release-action@v2
