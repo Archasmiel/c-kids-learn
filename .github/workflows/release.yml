@@ -81,21 +81,21 @@ jobs:
       - name: Move files to portable directory
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path medi | Out-Null
-          Get-ChildItem -Force | Where-Object { $_.Name -ne 'medi' } | Move-Item -Destination medi
+          New-Item -ItemType Directory -Path c_learn | Out-Null
+          Get-ChildItem -Force | Where-Object { $_.Name -ne 'c_learn' } | Move-Item -Destination c_learn
 
       - name: Create portable zip
         shell: pwsh
         run: |
-          Write-Host "> Creating medi.zip..."
-          Compress-Archive -Path medi\* -DestinationPath medi.zip -Force
+          Write-Host "> Creating c_learn.zip..."
+          Compress-Archive -Path c_learn\* -DestinationPath c_learn.zip -Force
 
       - name: Upload to 'Latest' release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: medi.zip
-          asset_name: medi.zip
+          file: c_learn.zip
+          asset_name: c_learn.zip
           tag: latest
           release_name: Latest
           overwrite: true
