@@ -90,6 +90,14 @@ jobs:
           Write-Host "> Creating c_learn.zip..."
           Compress-Archive -Path c_learn\* -DestinationPath c_learn.zip -Force
 
+      - name: Delete old Latest release
+        uses: dev-drprasad/delete-tag-and-release@v1.0
+        with:
+          tag_name: latest
+          delete_release: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload to 'Latest' release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -100,3 +108,4 @@ jobs:
           release_name: Latest
           overwrite: true
           body: "Automated latest build for ${{ github.sha }}"
+
