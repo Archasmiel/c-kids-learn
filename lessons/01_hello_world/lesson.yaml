@@ -1,0 +1,6 @@
+title: Hello, World!
+summary: Your first C program — printing text.
+description: >
+  Click Run to see your computer talk back. Then try typing your name!
+example_input: Alice
+input_label: Your name (optional)

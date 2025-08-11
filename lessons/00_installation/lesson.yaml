@@ -1,0 +1,7 @@
+title: Installing a C Compiler
+summary: Set up a C compiler on the teacher laptop so programs can run.
+description: >
+  Your teacher prepares the computer so everyone in class can run C programs.
+  We will use a tiny compiler (TCC) today. Students only need to open this site.
+example_input:
+input_label:

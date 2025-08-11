@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% block content %}
+<h1>Lessons</h1>
+<ul>
+  {% for l in lessons %}
+    <li>
+      <a href="{{ url_for('basic.lesson', slug=l.slug) }}">{{ l.title }}</a><br>
+      <small>{{ l.summary }}</small>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

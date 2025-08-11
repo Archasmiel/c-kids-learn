@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% block content %}
+<h2>{{ meta.title }} — Result</h2>
+{% if ok %}
+  <pre>{{ output }}</pre>
+{% else %}
+  <h3>There was a problem</h3>
+  <pre>{{ errors }}</pre>
+{% endif %}
+<a href="{{ url_for('basic.lesson', slug=slug) }}">Back</a> |
+<a href="{{ url_for('basic.index') }}">Lessons</a>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+{% block content %}
+<h1>{{ meta.title }}</h1>
+<p>{{ meta.description }}</p>
+
+{% if meta.example_input %}
+<form method="post">
+  <label>{{ meta.input_label or "Input" }}</label>
+  <input name="user_input" placeholder="{{ meta.example_input }}" />
+  <button type="submit">Run program</button>
+</form>
+{% else %}
+<form method="post">
+  <button type="submit">Run program</button>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,98 @@
+name: Build Portable Medi
+
+on:
+  push:        
+    branches: [ main ] 
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Paths setup and folder creation
+        shell: pwsh
+        run: |
+          Write-Host "> Variables and folders setup..."
+          $pythonVer = "3.13.5"
+          $pythonUrl = "https://www.python.org/ftp/python/$pythonVer/python-$pythonVer-embed-amd64.zip"
+          $pipUrl = "https://bootstrap.pypa.io/get-pip.py"
+          $tempPath = ".\temp"
+
+          if (-Not (Test-Path $tempPath)) { New-Item -ItemType Directory -Path $tempPath | Out-Null }
+          Set-Location $tempPath
+
+      - name: Download Portable Python
+        shell: pwsh
+        run: |
+          Write-Host "> Downloading Python v$pythonVer..."
+          Invoke-WebRequest -Uri $pythonUrl -OutFile "python-$pythonVer-embed.zip"
+          Write-Host "> Unpacking Python..."
+          Expand-Archive -Path "python-$pythonVer-embed.zip" -DestinationPath ".\python-win"
+
+      - name: Configure _pth
+        shell: pwsh
+        run: |
+          Write-Host "> Configuring portability..."
+          $pthFile = (Get-ChildItem python-win -Filter "python*._pth" | Select-Object -First 1).FullName
+          $zipName = (Get-ChildItem python-win -Filter "python*.zip" | Select-Object -First 1).Name
+          Set-Content -Path $pthFile -Value ("$zipName`n..`nlibs`nimport site")
+
+      - name: Install pip
+        shell: pwsh
+        run: |
+          Write-Host "> Downloading pip..."
+          Invoke-WebRequest -Uri $pipUrl -OutFile "get-pip.py"
+          Write-Host "> Installing pip..."
+          python-win/python.exe get-pip.py
+      
+      - name: Install dependencies
+        shell: pwsh
+        run: | 
+          Write-Host "> Downloading requirements..."
+          python-win/python.exe -m pip install -r ../requirements.txt --target python-win/libs
+
+      - name: Move python to folder and remove temp files
+        shell: pwsh
+        run: |
+          Write-Host "> Removing old files and placing the python-portable..."
+          Move-Item -Path ".\python-win" -Destination "..\python-win" -Force
+          Set-Location ".."
+          Remove-Item -Path $tempPath -Recurse
+          
+      - name: Create portable launch file
+        shell: pwsh
+        run: Set-Content -Path launch-win.bat -Value ("@echo off`ncd /d ""%~dp0""`npython-win\python.exe run.py")
+
+      - name: Remove unnecessary files
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force .git, .github, __pycache__, subscripts -ErrorAction SilentlyContinue
+          Remove-Item .gitignore, python-win.zip, get-pip.py, medi.zip -Force -ErrorAction SilentlyContinue
+
+      - name: Move files to one directory
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path medi | Out-Null
+          Get-ChildItem -Force | Where-Object { $_.Name -ne 'medi' } | Move-Item -Destination medi
+
+      - name: Create portable zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path medi -DestinationPath medi.zip
+
+      - name: Upload to 'Latest' release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: medi.zip
+          asset_name: medi.zip
+          tag: latest
+          release_name: Latest
+          overwrite: true
+          body: "Automated latest build for ${{ github.sha }}"

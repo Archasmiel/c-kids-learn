@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title or "C Kids Learn" }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+<header class="bar">C Learn</header>
+<main class="wrap">
+  {% block content %}{% endblock %}
+</main>
+<footer class="bar small">Runs on teacher laptop — students connect via LAN</footer>
+</body>
+</html>
