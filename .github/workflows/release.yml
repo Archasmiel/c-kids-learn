@@ -18,8 +18,10 @@ jobs:
       - name: Create temp folder
         shell: pwsh
         run: |
-          $env:TEMP_PATH = "$(Resolve-Path .\temp)"
-          if (-Not (Test-Path $env:TEMP_PATH)) { New-Item -ItemType Directory -Path $env:TEMP_PATH | Out-Null }
+          if (-Not (Test-Path .\temp)) { New-Item -ItemType Directory -Path .\temp | Out-Null }
+          $env:TEMP_PATH = (Resolve-Path .\temp).Path
+          Write-Host "TEMP_PATH set to $env:TEMP_PATH"
+
 
       - name: Download Portable Python
         shell: pwsh
