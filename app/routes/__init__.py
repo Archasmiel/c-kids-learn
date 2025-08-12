@@ -1,5 +1,6 @@
 from flask import Flask, Blueprint
 from importlib import import_module
+from ..services.logger import logger
 import os
 
 
@@ -14,4 +15,4 @@ def register(app: Flask):
             bp = getattr(module, "bp", None)
             if isinstance(bp, Blueprint):
                 app.register_blueprint(bp)
-                print(f'> Registered \'{module_name}\' route')
+                logger.info(f'Registered \'{module_name}\' routes')

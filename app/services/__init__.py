@@ -1,5 +1,6 @@
 from flask import Flask
 from importlib import import_module
+from .logger import logger
 import os
 
 
@@ -14,4 +15,4 @@ def register(app: Flask):
             register = getattr(module, "register", None)
             if callable(register):
                 register(app)
-                print(f'> Registered \'{module_name}\' service')
+                logger.info(f'Registered \'{module_name}\' service')
