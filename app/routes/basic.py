@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, url_for, current_app
 from pathlib import Path
 import yaml
-from .runner import compile_and_run
+from ..runner import compile_and_run
 
-bp = Blueprint("basic", __name__)
+bp = Blueprint('basic', __name__)
 
 def load_lesson(lesson_dir: Path):
     with open(lesson_dir / "lesson.yaml", "r", encoding="utf-8") as f:

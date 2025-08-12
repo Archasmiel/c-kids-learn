@@ -1,4 +1,4 @@
-import subprocess, tempfile, os, shlex
+import subprocess, tempfile, os
 from pathlib import Path
 from flask import current_app
 

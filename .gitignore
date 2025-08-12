@@ -25,6 +25,7 @@ python-win/
 # Flask folders
 instance/
 migrations/
+backup/
 
 # Logs
 *.log
@@ -57,5 +58,6 @@ desktop.ini
 
 # --- Local tools ---
 tools/tcc/*
-tools/mingw64/*
-!tools/tcc/tcc.exe   # optional: keep compiler exe if you want to share
+tools/gcc/*
+!tools/gcc/README**
+!tools/tcc/README**

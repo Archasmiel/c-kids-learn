@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{{ title or "C Kids Learn" }}</title>
+  <title>{{ title or "Гайд з мови C для чайників" }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 </head>
 <body>
-<header class="bar">C Learn</header>
+<header class="bar">Гайд з мови C для чайників</header>
 <main class="wrap">
   {% block content %}{% endblock %}
 </main>
-<footer class="bar small">Runs on teacher laptop — students connect via LAN</footer>
+<footer class="bar small">Програми запускаються на вчительській машині.</footer>
 </body>
 </html>
