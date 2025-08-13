@@ -1,0 +1,31 @@
+{% extends "_base.html" %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block content %}
+
+
+{% if lessons %}
+  <ul class="list-group list-group-flush card card--elevated bg-surface shadow-sm overflow-hidden">
+    <h1 class="h3 text-light mx-3 mt-3">Теми</h1>
+    {% for l in lessons %}
+      <li class="list-group-item bg-transparent text-body border-secondary border-opacity-25">
+        <a class="row align-items-center text-decoration-none stretched-link" href="{{ url_for('basic.lesson', slug=l.slug) }}">
+          <div class="col-auto pe-0">
+            <span class="badge rounded-pill text-light me-2">{{ loop.index }}</span>
+          </div>
+          <div class="col">
+            <div class="fw-semibold">{{ l.title }}</div>
+            {% if l.summary %}
+              <div class="text-light small mt-1">{{ l.summary }}</div>
+            {% endif %}
+          </div>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-muted">Поки що немає доступних тем.</p>
+{% endif %}
+{% endblock %}

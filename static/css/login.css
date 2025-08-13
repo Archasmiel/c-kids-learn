@@ -1,0 +1,60 @@
+/* -------------------------------
+   Main Layout
+-------------------------------- */
+.main-content {
+    flex: 1;
+    flex-direction: row;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* -------------------------------
+   Card Styling
+-------------------------------- */
+.card {
+    border-radius: 1rem;
+}
+
+.card-header {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+/* -------------------------------
+   Form Controls
+-------------------------------- */
+.form-control {
+    border-radius: 0.75rem;
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 10px rgba(0, 180, 255, 0.3);
+    border-color: #00b4ff;
+}
+
+/* -------------------------------
+   Dark Button Effects
+-------------------------------- */
+.btn-dark {
+    border-radius: 0.75rem;
+    border: 1px solid #555;
+    background-color: #222;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                box-shadow 0.3s ease, 
+                transform 0.2s ease;
+}
+
+.btn-dark:hover {
+    background-color: #00b4ff;
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 180, 255, 0.4);
+    transform: translateY(-2px);
+}
+

@@ -12,6 +12,10 @@ class BaseConfig:
     SQLALCHEMY_DATABASE_URI = os.getenv('SQLALCHEMY_DATABASE_URI', 'sqlite:///app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = (os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 0) == 1)
 
+    # ----- Login -----
+    LOGIN_VIEW = os.getenv('LOGIN_VIEW', 'auth.login')
+    LOGIN_MSG_CATEGORY = os.getenv('LOGIN_MSG_CATEGORY', 'info')
+
     # ----- Base paths -----
     APP_PATH = Path(os.path.dirname(__file__)).parent
     PROJECT_PATH = APP_PATH.parent
@@ -22,6 +26,7 @@ class BaseConfig:
 
     DB_PATH = INSTANCE_PATH / SQLALCHEMY_DATABASE_URI.split('/')[-1]
     TOOLS_PATH = PROJECT_PATH / os.getenv('TOOLS_PATH', 'tools')
+    LESSONS_PATH = PROJECT_PATH / os.getenv('LESSONS_PATH', 'lessons')
     PYTHON_EXE = PROJECT_PATH / os.getenv('PYTHON_EXE', '')
 
     # ----- Backup -----

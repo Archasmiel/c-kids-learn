@@ -1,12 +1,18 @@
 {% extends "_base.html" %}
 {% block content %}
-<h2>{{ meta.title }} — Result</h2>
-{% if ok %}
-  <pre>{{ output }}</pre>
-{% else %}
-  <h3>There was a problem</h3>
-  <pre>{{ errors }}</pre>
-{% endif %}
-<a href="{{ url_for('basic.lesson', slug=slug) }}">Back</a> |
-<a href="{{ url_for('basic.index') }}">Lessons</a>
+<div class="card bg-dark text-light shadow">
+  <div class="card-body">
+    <h2 class="card-title">{{ meta.title }} — Result</h2>
+    {% if ok %}
+      <pre class="mt-3 p-3 bg-black text-success rounded-3 border border-secondary">{{ output }}</pre>
+    {% else %}
+      <h3 class="text-danger">There was a problem</h3>
+      <pre class="mt-2 p-3 bg-black text-danger rounded-3 border border-danger">{{ errors }}</pre>
+    {% endif %}
+    <div class="mt-3">
+      <a class="btn btn-outline-light me-2" href="{{ url_for('basic.lessons', slug=slug) }}">Back</a>
+      <a class="btn btn-primary" href="{{ url_for('basic.index') }}">Lessons</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

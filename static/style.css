@@ -1,7 +1,0 @@
-body { font-family: system-ui, sans-serif; margin:0; }
-.wrap { max-width: 840px; margin: 20px auto; padding: 0 16px; }
-.bar { background:#1f2937; color:#fff; padding:10px 16px; }
-.small { font-size: 12px; opacity: .8; }
-pre { background:#111; color:#0f0; padding:12px; overflow:auto; }
-input, button { padding:8px; margin:6px 0; }
-a { color:#2563eb; }

@@ -1,12 +1,30 @@
 {% extends "_base.html" %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
 {% block content %}
-<h1>Теми</h1>
-<ul>
-  {% for l in lessons %}
-    <li>
-      <a href="{{ url_for('basic.lesson', slug=l.slug) }}">{{ l.title }}</a><br>
-      <small>{{ l.summary }}</small>
-    </li>
-  {% endfor %}
-</ul>
+<div class="card card--elevated bg-surface text-body shadow-sm">
+  <div class="card-body">
+    <h1 class="h3 mb-2">IP цього сайту</h1>
+    <p class="text-light mb-3">Якщо комусь ще треба ця сторінка.</p>
+
+    <div class="ip-box d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
+      <code class="ip-box__code">{{ ip_only }}:{{ port }}</code>
+      <button class="btn btn-accent flex-shrink-0"
+              type="button"
+              onclick="navigator.clipboard.writeText('http://{{ ip_only }}:{{ port }}')">
+        Копіювати
+      </button>
+    </div>
+
+    <hr class="my-4 border-secondary border-opacity-50">
+
+    <div class="d-grid gap-2 d-sm-flex">
+      <a class="btn btn-primary" href="{{ url_for('basic.lessons') }}">Перейти до тем</a>
+      <a class="btn btn-outline-light" href="{{ url_for('auth.login') }}">Увійти</a>
+      <a class="btn btn-outline-light" href="{{ url_for('auth.register') }}">Реєстрація</a>
+    </div>
+  </div>
+</div>
 {% endblock %}

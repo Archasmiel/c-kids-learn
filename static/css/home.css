@@ -1,0 +1,113 @@
+/* -------------------
+   Hover Lift Effect
+------------------- */
+.hover-lift {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+/* -------------------
+   Fullpage Carousel
+------------------- */
+#fullPageCarousel,
+#fullPageCarousel .carousel-inner,
+#fullPageCarousel .carousel-item,
+#fullPageCarousel .carousel-item img {
+    height: 100vh;
+}
+
+#fullPageCarousel .carousel-caption {
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+#fullPageCarousel .carousel-caption .container {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+#fullPageCarousel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    object-fit: cover;
+    background: linear-gradient(to right, rgba(0,0,0,0.5), rgba(0,0,0,0));
+}
+
+#fullPageCarousel .carousel-item:nth-child(1) img {
+    object-position: right center;
+}
+#fullPageCarousel .carousel-item:nth-child(2) img {
+    object-position: left center;
+}
+
+/* -------------------
+   Carousel Controls
+------------------- */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 20%;
+    padding: 30px;
+    transition: background-color 0.3s ease;
+}
+.carousel-control-prev-icon:hover,
+.carousel-control-next-icon:hover {
+    background-color: rgba(90, 180, 255, 0.7);
+}
+
+/* -------------------
+   Card Images
+------------------- */
+.card-img-top {
+    filter: grayscale(80%) brightness(1.1) contrast(1.05);
+    height: 250px;
+    object-fit: cover;
+}
+
+/* -------------------
+   Section Background
+------------------- */
+#section-bg {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.4);
+}
+
+/* -------------------
+   Attractive Button
+------------------- */
+.btn-attractive {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    color: black;
+}
+
+.btn-attractive:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 20px rgba(0, 180, 255, 0.5);
+    color: white;
+}
+
+.btn-attractive::before {
+    content: "";
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 100%);
+    transform: rotate(25deg);
+    transition: all 0.5s ease-in-out;
+    pointer-events: none;
+}
+
+.btn-attractive:hover::before {
+    left: 100%; top: 100%;
+}

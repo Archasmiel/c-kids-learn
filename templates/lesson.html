@@ -1,17 +1,21 @@
 {% extends "_base.html" %}
 {% block content %}
-<h1>{{ meta.title }}</h1>
-<p>{{ meta.description }}</p>
+<div class="card card--elevated bg-surface text-body shadow-sm">
+  <div class="card-body">
+    <h1 class="h4 card-title">{{ meta.title }}</h1>
+    {% if meta.description %}
+      <p class="card-text text-light">{{ meta.description }}</p>
+    {% endif %}
 
-{% if meta.example_input %}
-<form method="post">
-  <label>{{ meta.input_label or "Input" }}</label>
-  <input name="user_input" placeholder="{{ meta.example_input }}" />
-  <button type="submit">Run program</button>
-</form>
-{% else %}
-<form method="post">
-  <button type="submit">Run program</button>
-</form>
-{% endif %}
+    <form method="post" class="mt-3">
+      {% if meta.example_input %}
+        <div class="mb-3">
+          <label class="form-label">{{ meta.input_label or "Input" }}</label>
+          <input name="user_input" class="form-control" placeholder="{{ meta.example_input }}">
+        </div>
+      {% endif %}
+      <button type="submit" class="btn btn-primary w-100 w-sm-auto">Run program</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
