@@ -57,8 +57,7 @@ def request_teacher():
             flash("Ваш запит уже очікує розгляду.", "info")
         elif req.status == "approved":
             flash("Вам вже надано роль викладача.", "success")
-        else:
-            # rejected → allow re-request by resetting to pending
+        else:   # rejected → allow re-request by resetting to pending
             req.status = "pending"
             db.session.commit()
             flash("Повторний запит надіслано.", "success")

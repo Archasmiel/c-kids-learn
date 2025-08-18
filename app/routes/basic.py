@@ -3,7 +3,7 @@ from flask_login import login_required
 from pathlib import Path
 import yaml
 import socket
-from ..runner import compile_and_run
+from ..runner import compile_and_run, run_code
 from ..config import current_cfg as cfg
 
 bp = Blueprint('basic', __name__)
@@ -70,3 +70,14 @@ def lesson(slug):
                                meta=meta, slug=slug)
     
     return render_template("lesson.html", meta=meta, slug=slug)
+
+@bp.route("/playground", methods=["GET", "POST"])
+@login_required
+def playground():
+    if request.method == "POST":
+        user_input = request.form.get("code", "")
+        retcode, output, errors = run_code(user_input)
+        return render_template("playground.html", 
+                               retcode=retcode, output=output, errors=errors)
+    
+    return render_template("playground.html")

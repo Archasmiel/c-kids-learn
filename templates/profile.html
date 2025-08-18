@@ -68,10 +68,6 @@
   <div class="col-12 col-lg-8">
     <div class="profile-card p-4 h-100">
       <h5 class="mb-3">Налаштування профілю</h5>
-      <p class="text-muted mb-4">
-        Тут можна керувати даними свого акаунта. Базовий проєкт не містить аватарів/електронної пошти —
-        за бажанням додайте поля у модель та форму.
-      </p>
 
       {# Example edit form placeholder (adapt to your WTForms if you have it) #}
       <form method="post" action="{{ url_for('users.update_profile') }}">
@@ -82,34 +78,29 @@
             {{ form.username(class="form-control", required=True) }}
             </div>
 
-          {% if current_user.is_teacher %}
-          <div class="col-12">
-            <div class="alert alert-info mb-0">
-              Ви маєте права викладача. Перейдіть до <a class="alert-link" href="{{ url_for('users.dashboard') }}">панелі викладача</a>.
-            </div>
-          </div>
-          {% else %}
-          <div class="col-12">
-            <div class="form-text">
-              Потрібна роль викладача? Зверніться до адміністратора або подайте запит нижче.
-            </div>
-          </div>
-          {% endif %}
-
           <div class="col-12 d-flex gap-2">
             <button type="submit" class="btn btn-primary">Зберегти</button>
             <a href="{{ url_for('basic.index') }}" class="btn btn-outline-light">Назад</a>
           </div>
         </div>
       </form>
+          
+      <hr class="my-4">
 
       {% if not current_user.is_teacher %}
-      <hr class="my-4">
-      <form method="post" action="{{ url_for('users.request_teacher') }}">
-        {{ form.csrf_token }}
-        <button class="btn btn-dark btn-sm">Подати запит на роль викладача</button>
-      </form>
+        <div class="form-text mb-2">
+            Потрібна роль викладача? Зверніться до адміністратора або подайте запит нижче.
+        </div>
+        <form method="post" action="{{ url_for('users.request_teacher') }}">
+          {{ form.csrf_token }}
+          <button class="btn btn-dark btn-sm">Подати запит на роль викладача</button>
+        </form>
+      {% else %}
+        <div class="alert alert-info mb-0">
+          Ви маєте права викладача. Перейдіть до <a class="alert-link" href="{{ url_for('users.dashboard') }}">панелі викладача</a>.
+        </div>
       {% endif %}
+
     </div>
   </div>
 </div>

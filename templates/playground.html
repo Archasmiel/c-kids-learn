@@ -1,0 +1,269 @@
+<!-- templates/playground.html — Ace (self-contained) with autocomplete, snippets, vim/emacs, dark solid UI -->
+{% extends "_base.html" %}
+{% set title = "Пісочниця коду" %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --fg: #e6e6e6;
+    --muted: #9aa3ad;
+    --panel-solid: #0e0f12;
+    --panel-border: #22252a;
+  }
+  .playground-card{ background: #0a0b0e; border:1px solid var(--panel-border); border-radius:1rem; color:var(--fg); }
+  .playground-card .text-muted{ color: var(--muted)!important; }
+  .solid-panel{ background: var(--panel-solid)!important; border:1px solid var(--panel-border)!important; color:var(--fg); border-radius:.5rem; }
+
+  /* Ace area */
+  #editor{ height:520px; }
+  .ace_editor{ background: var(--panel-solid)!important; color:var(--fg)!important; border-radius:.5rem; }
+  .ace_gutter{ background:#111317!important; color:var(--muted)!important; border-right:1px solid var(--panel-border)!important; }
+  .ace_tooltip{ color:#111; }
+
+  pre.output, pre.errors{ white-space:pre-wrap; word-break:break-word; margin:0; color:var(--fg); }
+
+  .btn-outline-light{ --bs-btn-color:var(--fg); --bs-btn-border-color:rgba(255,255,255,.3); --bs-btn-hover-bg:rgba(255,255,255,.12); --bs-btn-hover-border-color:rgba(255,255,255,.55); }
+  .btn-outline-secondary{ --bs-btn-color:var(--muted); --bs-btn-border-color:rgba(255,255,255,.25); --bs-btn-hover-bg:rgba(255,255,255,.10); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12 col-lg-7">
+    <div class="playground-card p-4 h-100">
+      <h5 class="mb-3 d-flex align-items-center justify-content-between">
+        <span>Пісочниця</span>
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#editorOptions" aria-expanded="false">Налаштування редактора</button>
+      </h5>
+
+      <form id="run-form" method="post" action="{{ url_for('basic.playground') if request.endpoint!='playground' else url_for('playground') }}">
+        {% if form is defined and form.csrf_token is defined %}
+          {{ form.csrf_token }}
+        {% elif csrf_token is defined %}
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% endif %}
+
+        <input type="hidden" name="code" id="code-field" value="">
+
+        <div id="editor" class="solid-panel mb-2" aria-label="Редактор коду (Ace)"></div>
+
+        <div class="small text-danger mb-0">Ctrl+Enter = Запустити</div>
+        <div class="small text-danger mb-0">Ctrl+Space = Підказки</div>
+        <div class="small text-muted mb-0">У коду є автозбереження</div>
+        <div class="small text-muted mb-2">Тема: Monokai</div>
+
+        <div class="form-check form-switch mb-4">
+            <input class="form-check-input" type="checkbox" id="opt-live" checked>
+            <label class="form-check-label" for="opt-live">Live підказки (без клавіш)</label>
+        </div>
+
+        <div class="collapse mb-3" id="editorOptions">
+          <div class="card card-body solid-panel">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <label class="form-label">Розмір шрифту</label>
+                <input type="range" min="12" max="24" step="1" class="form-range" id="opt-fontsize" value="14">
+                <div class="small text-muted"><span id="fontsize-val">14</span> px</div>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">Розмір таба</label>
+                <select class="form-select" id="opt-tabsize">
+                  <option value="2">2</option>
+                  <option value="4" selected>4</option>
+                  <option value="8">8</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">Кейбіндінги</label>
+                <select class="form-select" id="opt-keys">
+                  <option value="default">Стандартні</option>
+                  <option value="vim">Vim</option>
+                  <option value="emacs">Emacs</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label">Сніпети</label>
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="opt-snippets" checked>
+                  <label class="form-check-label" for="opt-snippets">Увімкнути</label>
+                </div>
+              </div>
+              <div class="col-12 d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" type="button" id="editor-reset">Скинути налаштування</button>
+                <small class="text-muted align-self-center">Налаштування автозберігаються.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary" id="run-btn">Запустити</button>
+          <button type="button" class="btn btn-outline-light" id="clear-btn">Очистити</button>
+          <button type="button" class="btn btn-outline-secondary" id="download-btn">Завантажити .c</button>
+          <a href="{{ url_for('basic.index') }}" class="btn btn-outline-secondary">Назад</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="playground-card p-4 h-100">
+      <h5 class="mb-3">Результат виконання</h5>
+      <div class="mb-3">
+        <label class="form-label">Stdout / Виведення</label>
+        <div class="card solid-panel"><div class="card-body"><pre class="output">{{ (output or '')|safe }}</pre></div></div>
+      </div>
+      <div>
+        <label class="form-label">Stderr / Помилки</label>
+        <div class="card solid-panel"><div class="card-body"><pre class="errors">{{ (errors or '')|safe }}</pre></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Self-hosted Ace: make sure these files exist in /static/ace/ -->
+<script src="{{ url_for('static', filename='ace/ace.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/ext-language_tools.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/mode-c_cpp.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/theme-monokai.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/keybinding-vim.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/keybinding-emacs.js') }}"></script>
+<script src="{{ url_for('static', filename='ace/snippets/c_cpp.js') }}"></script>
+
+<script>
+(function(){
+  const STORAGE_CODE = 'playground.ace.code';
+  const STORAGE_OPTS = 'playground.ace.options';
+
+  const form = document.getElementById('run-form');
+  const codeField = document.getElementById('code-field');
+  const btnClear = document.getElementById('clear-btn');
+  const btnDownload = document.getElementById('download-btn');
+
+  const optFont = document.getElementById('opt-fontsize');
+  const optFontVal = document.getElementById('fontsize-val');
+  const optTab = document.getElementById('opt-tabsize');
+  const optKeys = document.getElementById('opt-keys');
+  const optLive = document.getElementById('opt-live');
+  const optSnippets = document.getElementById('opt-snippets');
+  const btnReset = document.getElementById('editor-reset');
+
+  function loadOpts(){
+    try{ return JSON.parse(localStorage.getItem(STORAGE_OPTS)||'null') || {fontSize:14, tabSize:4, keys:'default', live:true, snippets:true}; }
+    catch{ return {fontSize:14, tabSize:4, keys:'default', live:true, snippets:true}; }
+  }
+  function saveOpts(o){ try{ localStorage.setItem(STORAGE_OPTS, JSON.stringify(o)); }catch(e){} }
+
+  const posted = {{ request.form.get('code')|tojson }};
+  const saved = localStorage.getItem(STORAGE_CODE);
+  const initialDoc = posted || saved || "#include <stdio.h>\nint main(){ puts(\"Hello\"); return 0; }\n";
+  const opts = loadOpts();
+
+  if (!window.ace){ console.error('Ace not found.'); return; }
+
+  // --- Init Ace ---
+  const editor = ace.edit('editor');
+  window._editor = editor;
+  editor.session.setMode('ace/mode/c_cpp');
+  editor.setTheme('ace/theme/monokai');
+  editor.setOptions({
+    fontSize: (opts.fontSize||14) + 'px',
+    enableBasicAutocompletion: true,      // required for any completion
+    enableLiveAutocompletion: !!opts.live,
+    enableSnippets: !!opts.snippets,
+    showPrintMargin: false,
+    useSoftTabs: true,
+    wrap: false,
+    readOnly: false,
+    useWorker: false
+  });
+  editor.session.setTabSize(Number(opts.tabSize||4));
+  editor.setValue(initialDoc, -1);
+  editor.clearSelection();
+  editor.focus();
+
+  // --- Keymaps ---
+  function applyKeys(mode){
+    if (mode === 'vim'){ editor.setKeyboardHandler('ace/keyboard/vim'); }
+    else if (mode === 'emacs'){ editor.setKeyboardHandler('ace/keyboard/emacs'); }
+    else { editor.setKeyboardHandler(null); }
+  }
+  applyKeys(opts.keys || 'default');
+
+  // --- Autocomplete setup ---
+  const langTools = ace.require('ace/ext/language_tools');
+  const snippetManager = ace.require('ace/snippets').snippetManager;
+
+  // A small stdlib list to boost suggestions (edit to taste)
+  const stdlib = [
+    'printf','fprintf','sprintf','snprintf','scanf','fscanf','sscanf','puts','fgets','putchar','getchar',
+    'malloc','calloc','realloc','free','memcpy','memmove','memset','memcmp',
+    'strcmp','strncmp','strcpy','strncpy','strlen','strcat','strncat','strchr','strstr',
+    'qsort','bsearch','exit','abort','fopen','fclose','fread','fwrite','fseek','ftell','rewind',
+    'time','clock','rand','srand'
+  ];
+
+  const stdCompleter = {
+    getCompletions: function(editor, session, pos, prefix, callback){
+      if (!prefix) return callback(null, []);
+      const out = stdlib.map(name=>({ caption: name+'()', value: name+'()', meta: 'stdlib', score: 1000 }));
+      callback(null, out);
+    }
+  };
+
+  // Optional: your own snippets (Tab to expand)
+  const customSnippets = [
+    { // fori -> for (int i = 0; i < N; ++i) { ... }
+      name: 'fori', tabTrigger: 'fori', scope: 'c_cpp',
+      caption: 'for (int i = 0; i < N; ++i) { }', meta: 'snippet',
+      snippet: 'for (int i = 0; i < ${1:N}; ++i) {\n\t${2:// code}\n}\n'
+    },
+    {
+      name: 'main', tabTrigger: 'main', scope: 'c_cpp', caption: 'int main(...)', meta: 'snippet',
+      snippet: 'int main(int argc, char** argv){\n\t${1:// code}\n\treturn 0;\n}\n'
+    },
+    {
+      name: 'printf', tabTrigger: 'pr', scope: 'c_cpp', caption: 'printf("%d\\n", x);', meta: 'snippet',
+      snippet: 'printf("%${1:d}\\n", ${2:x});'
+    }
+  ];
+  snippetManager.register(customSnippets, 'c_cpp');
+
+  // Compose completers: snippets + buffer words + keywords + stdlib
+  langTools.setCompleters([
+    langTools.snippetCompleter,
+    langTools.textCompleter,
+    langTools.keyWordCompleter,
+    stdCompleter
+  ]);
+
+  // Shortcut to trigger completion menu
+  editor.commands.addCommand({
+    name: 'autocomplete', bindKey: {win: 'Ctrl-Space', mac: 'Ctrl-Space'},
+    exec: function(ed){ ed.execCommand('startAutocomplete'); }
+  });
+
+  // Persist code
+  editor.session.on('change', function(){ try{ localStorage.setItem(STORAGE_CODE, editor.getValue()); }catch(e){} });
+
+  // Options UI state
+  optFont.value = String(opts.fontSize||14); optFontVal.textContent = String(opts.fontSize||14);
+  optTab.value = String(opts.tabSize||4); optKeys.value = opts.keys || 'default';
+  optLive.checked = !!opts.live; optSnippets.checked = !!opts.snippets;
+
+  // Option handlers
+  optFont.addEventListener('input', (e)=>{ opts.fontSize = Number(e.target.value)||14; optFontVal.textContent = String(opts.fontSize); editor.setOptions({fontSize: opts.fontSize + 'px'}); saveOpts(opts); });
+  optTab.addEventListener('change', ()=>{ opts.tabSize = Number(optTab.value)||4; editor.session.setTabSize(opts.tabSize); saveOpts(opts); });
+  optKeys.addEventListener('change', ()=>{ opts.keys = optKeys.value; applyKeys(opts.keys); saveOpts(opts); });
+  optLive.addEventListener('change', ()=>{ opts.live = !!optLive.checked; editor.setOptions({enableLiveAutocompletion: opts.live}); saveOpts(opts); });
+  optSnippets.addEventListener('change', ()=>{ opts.snippets = !!optSnippets.checked; editor.setOptions({enableSnippets: opts.snippets}); saveOpts(opts); });
+
+  document.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key==='Enter'){ form.requestSubmit(); }});
+  btnClear.addEventListener('click', ()=>{ editor.setValue('', -1); try{ localStorage.removeItem(STORAGE_CODE);}catch(e){} });
+  btnDownload.addEventListener('click', ()=>{ const blob = new Blob([editor.getValue()], {type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='main.c'; a.click(); URL.revokeObjectURL(a.href); });
+  form.addEventListener('submit', ()=>{ codeField.value = editor.getValue(); });
+})();
+</script>
+{% endblock %}

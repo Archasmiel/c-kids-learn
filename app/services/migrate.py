@@ -20,7 +20,9 @@ def check_db_exist():
     logger.info('Running migrations...')
     if not os.path.exists(cfg.MIGRATIONS_PATH):
         mig_init(mig_str)
-    mig_migrate(mig_str, "Initial")
+
+    from secrets import token_hex
+    mig_migrate(mig_str, token_hex(32))
     mig_upgrade(mig_str)
 
 

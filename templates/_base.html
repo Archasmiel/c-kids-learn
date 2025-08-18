@@ -28,16 +28,25 @@
       <div class="collapse navbar-collapse" id="topnav">
         {# Left side: general navigation (extend as needed) #}
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'basic.index' %}active{% endif %}"
+          <li class="nav-item me-4">
+            <a class="nav-link"
                href="{{ url_for('basic.index') }}">
               <i class="bi bi-house-door me-1"></i>Головна
             </a>
           </li>
 
+          <li class="nav-item me-4">
+          {% if current_user.is_authenticated %}
+          <a class="nav-link"
+              href="{{ url_for('basic.playground') }}">
+            <i class="bi bi-display-fill me-1"></i>Пісочниця
+          </a>
+          {% endif %}
+          </li>
+          
           {# Visible only for teachers #}
           {% if current_user.is_authenticated and (current_user.is_teacher | default(false)) %}
-          <li class="nav-item">
+          <li class="nav-item me-4">
             <a class="nav-link {% if request.endpoint == 'users.dashboard' %}active{% endif %}"
                href="{{ url_for('users.dashboard') }}">
               <i class="bi bi-speedometer2 me-1"></i>Панель викладача
