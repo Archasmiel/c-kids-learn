@@ -1,15 +1,14 @@
 from flask import Blueprint, flash, redirect, url_for, render_template, request
 from flask_login import current_user, login_required, login_user, logout_user
-from ..forms.registration import RegistrationForm
-from ..forms.login import LoginForm
-from ..forms.change_password import ChangePasswordForm
-from ..models.user import User
-from ..services.database import db
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
+from ..forms.change_password import ChangePasswordForm
+from ..forms.login import LoginForm
+from ..forms.registration import RegistrationForm
+from ..models.user import User
+from ..services.database import db
 
 bp = Blueprint('auth', __name__)
-
 
 
 def _norm_username(s: str) -> str:

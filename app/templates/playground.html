@@ -1,6 +1,6 @@
 <!-- templates/playground.html — Ace (self-contained) with autocomplete, snippets, vim/emacs, dark solid UI -->
 {% extends "_base.html" %}
-{% set title = "Пісочниця коду" %}
+{% set title = _('Пісочниця коду') %}
 
 {% block extra_css %}
 <style>
@@ -32,8 +32,9 @@
   <div class="col-12 col-lg-7">
     <div class="playground-card p-4 h-100">
       <h5 class="mb-3 d-flex align-items-center justify-content-between">
-        <span>Пісочниця</span>
-        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#editorOptions" aria-expanded="false">Налаштування редактора</button>
+        <span>{{_('Пісочниця')}}</span>
+        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#editorOptions" aria-expanded="false">
+          {{_('Налаштування редактора')}}</button>
       </h5>
 
       <form id="run-form" method="post" action="{{ url_for('basic.playground') if request.endpoint!='playground' else url_for('playground') }}">
@@ -45,28 +46,28 @@
 
         <input type="hidden" name="code" id="code-field" value="">
 
-        <div id="editor" class="solid-panel mb-2" aria-label="Редактор коду (Ace)"></div>
+        <div id="editor" class="solid-panel mb-2" aria-label="{{ _('Редактор коду (Ace)') }}"></div>
 
-        <div class="small text-danger mb-0">Ctrl+Enter = Запустити</div>
-        <div class="small text-danger mb-0">Ctrl+Space = Підказки</div>
-        <div class="small text-muted mb-0">У коду є автозбереження</div>
-        <div class="small text-muted mb-2">Тема: Monokai</div>
+        <div class="small text-danger mb-0">Ctrl+Enter = {{ _('Запустити') }}</div>
+        <div class="small text-danger mb-0">Ctrl+Space = {{ _('Підказки') }}</div>
+        <div class="small text-muted mb-0">{{ _('У коду є автозбереження') }}</div>
+        <div class="small text-muted mb-2">{{ _('Тема') }}: Monokai</div>
 
         <div class="form-check form-switch mb-4">
             <input class="form-check-input" type="checkbox" id="opt-live" checked>
-            <label class="form-check-label" for="opt-live">Live підказки (без клавіш)</label>
+            <label class="form-check-label" for="opt-live">{{_('Live підказки (без клавіш)')}}</label>
         </div>
 
         <div class="collapse mb-3" id="editorOptions">
           <div class="card card-body solid-panel">
             <div class="row g-3">
               <div class="col-6 col-md-3">
-                <label class="form-label">Розмір шрифту</label>
+                <label class="form-label">{{_('Розмір шрифту')}}</label>
                 <input type="range" min="12" max="24" step="1" class="form-range" id="opt-fontsize" value="14">
                 <div class="small text-muted"><span id="fontsize-val">14</span> px</div>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label">Розмір таба</label>
+                <label class="form-label">{{_('Розмір Tab')}}</label>
                 <select class="form-select" id="opt-tabsize">
                   <option value="2">2</option>
                   <option value="4" selected>4</option>
@@ -74,33 +75,34 @@
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label">Кейбіндінги</label>
+                <label class="form-label">{{_('Кейбіндінги')}}</label>
                 <select class="form-select" id="opt-keys">
-                  <option value="default">Стандартні</option>
+                  <option value="default">{{_('Стандартні')}}</option>
                   <option value="vim">Vim</option>
                   <option value="emacs">Emacs</option>
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label">Сніпети</label>
+                <label class="form-label">{{_('Сніпети')}}</label>
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="opt-snippets" checked>
-                  <label class="form-check-label" for="opt-snippets">Увімкнути</label>
+                  <label class="form-check-label" for="opt-snippets">{{_('Увімкнути')}}</label>
                 </div>
               </div>
               <div class="col-12 d-flex gap-2">
-                <button class="btn btn-outline-secondary btn-sm" type="button" id="editor-reset">Скинути налаштування</button>
-                <small class="text-muted align-self-center">Налаштування автозберігаються.</small>
+                <button class="btn btn-outline-secondary btn-sm" type="button" id="editor-reset">
+                  {{_('Скинути налаштування')}}</button>
+                <small class="text-muted align-self-center">{{_('Налаштування автозберігаються.')}}</small>
               </div>
             </div>
           </div>
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-primary" id="run-btn">Запустити</button>
-          <button type="button" class="btn btn-outline-light" id="clear-btn">Очистити</button>
-          <button type="button" class="btn btn-outline-secondary" id="download-btn">Завантажити .c</button>
-          <a href="{{ url_for('basic.index') }}" class="btn btn-outline-secondary">Назад</a>
+          <button type="submit" class="btn btn-primary" id="run-btn">{{_('Запустити')}}</button>
+          <button type="button" class="btn btn-outline-light" id="clear-btn">{{_('Очистити')}}</button>
+          <button type="button" class="btn btn-outline-secondary" id="download-btn">{{_('Завантажити .c')}}</button>
+          <a href="{{ url_for('basic.index') }}" class="btn btn-outline-secondary">{{_('Назад')}}</a>
         </div>
       </form>
     </div>
@@ -108,13 +110,13 @@
 
   <div class="col-12 col-lg-5">
     <div class="playground-card p-4 h-100">
-      <h5 class="mb-3">Результат виконання</h5>
+      <h5 class="mb-3">{{_('Результат виконання')}}</h5>
       <div class="mb-3">
-        <label class="form-label">Stdout / Виведення</label>
+        <label class="form-label">{{_('Stdout / Виведення')}}</label>
         <div class="card solid-panel"><div class="card-body"><pre class="output">{{ (output or '')|safe }}</pre></div></div>
       </div>
       <div>
-        <label class="form-label">Stderr / Помилки</label>
+        <label class="form-label">{{_('Stderr / Помилки')}}</label>
         <div class="card solid-panel"><div class="card-body"><pre class="errors">{{ (errors or '')|safe }}</pre></div></div>
       </div>
     </div>

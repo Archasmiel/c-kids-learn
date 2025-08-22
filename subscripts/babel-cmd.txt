@@ -1,0 +1,12 @@
+----- Initialize -----
+.\python-win\Scripts\pybabel.exe extract -F babel.cfg -o app\translations\messages.pot .
+
+--- Lang init ---
+.\python-win\Scripts\pybabel.exe init -i app/translations/messages.pot -d app/translations -l uk
+.\python-win\Scripts\pybabel.exe init -i app/translations/messages.pot -d app/translations -l en
+
+----- Update -----
+.\python-win\Scripts\pybabel.exe update -i app/translations/messages.pot -d app/translations
+
+----- Compile -----
+.\python-win\Scripts\pybabel.exe compile -d app/translations

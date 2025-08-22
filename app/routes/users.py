@@ -1,10 +1,10 @@
-from flask import Blueprint, redirect, url_for, flash, request, render_template
+from flask import Blueprint, redirect, url_for, flash, render_template
 from flask_login import login_required, current_user
 from sqlalchemy import func
-from ..services.database import db
-from ..models.user import User
-from ..models.teacher_request import TeacherRequest
 from ..forms.update_profile import UpdateProfileForm
+from ..models.teacher_request import TeacherRequest
+from ..models.user import User
+from ..services.database import db
 from ..utils.decorators import teacher_required
 
 bp = Blueprint("users", __name__)
@@ -57,7 +57,7 @@ def request_teacher():
             flash("Ваш запит уже очікує розгляду.", "info")
         elif req.status == "approved":
             flash("Вам вже надано роль викладача.", "success")
-        else:   # rejected → allow re-request by resetting to pending
+        else:  # rejected → allow re-request by resetting to pending
             req.status = "pending"
             db.session.commit()
             flash("Повторний запит надіслано.", "success")
@@ -74,4 +74,10 @@ def request_teacher():
 @bp.route("/dashboard", methods=["GET"])
 @teacher_required
 def dashboard():
+    return render_template("dashboard.html")
+
+
+@bp.route("/projects", methods=["GET", "POST"])
+@login_required
+def projects():
     return render_template("dashboard.html")

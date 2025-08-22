@@ -1,5 +1,5 @@
 {% extends "_base.html" %}
-{% set title = "Профіль" %}
+{% set title = _('Профіль') %}
 
 {% block extra_css %}
 <style>
@@ -34,9 +34,9 @@
         <div>
           <h5 class="mb-1">{{ current_user.username }}</h5>
           {% if current_user.is_teacher %}
-            <span class="badge bg-success">Викладач</span>
+            <span class="badge bg-success">{{_('Викладач')}}</span>
           {% else %}
-            <span class="badge bg-secondary">Студент</span>
+            <span class="badge bg-secondary">{{_('Студент')}}</span>
           {% endif %}
         </div>
       </div>
@@ -45,42 +45,42 @@
 
       <ul class="list-unstyled small mb-4">
         <li class="d-flex justify-content-between stat">
-          <span class="text-muted">ID користувача</span>
+          <span class="text-muted">{{_('ID користувача')}}</span>
           <span>#{{ current_user.id }}</span>
         </li>
         <li class="d-flex justify-content-between stat">
-          <span class="text-muted">Створено</span>
+          <span class="text-muted">{{_('Створено')}}</span>
           <span>{{ current_user.created_at.strftime("%Y-%m-%d") if current_user.created_at }}</span>
         </li>
         <li class="d-flex justify-content-between stat">
-          <span class="text-muted">Оновлено</span>
+          <span class="text-muted">{{_('Оновлено')}}</span>
           <span>{{ current_user.updated_at.strftime("%Y-%m-%d") if current_user.updated_at }}</span>
         </li>
       </ul>
 
       <div class="d-grid gap-2">
-        <a class="btn btn-primary btn-sm" href="{{ url_for('auth.change_password') }}">Змінити пароль</a>
-        <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">Вийти</a>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('auth.change_password') }}">{{_('Змінити пароль')}}</a>
+        <a class="btn btn-outline-light btn-sm" href="{{ url_for('auth.logout') }}">{{_('Вийти')}}</a>
       </div>
     </div>
   </div>
 
   <div class="col-12 col-lg-8">
     <div class="profile-card p-4 h-100">
-      <h5 class="mb-3">Налаштування профілю</h5>
+      <h5 class="mb-3">{{_('Налаштування профілю')}}</h5>
 
       {# Example edit form placeholder (adapt to your WTForms if you have it) #}
       <form method="post" action="{{ url_for('users.update_profile') }}">
         {{ form.csrf_token }}
         <div class="row g-3">
             <div class="col-12 col-md-6">
-            <label class="form-label">Ім'я користувача</label>
+            <label class="form-label">{{_('Ім\'я користувача')}}</label>
             {{ form.username(class="form-control", required=True) }}
             </div>
 
           <div class="col-12 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Зберегти</button>
-            <a href="{{ url_for('basic.index') }}" class="btn btn-outline-light">Назад</a>
+            <button type="submit" class="btn btn-primary">{{_('Зберегти')}}</button>
+            <a href="{{ url_for('basic.index') }}" class="btn btn-outline-light">{{_('Назад')}}</a>
           </div>
         </div>
       </form>
@@ -89,15 +89,17 @@
 
       {% if not current_user.is_teacher %}
         <div class="form-text mb-2">
-            Потрібна роль викладача? Зверніться до адміністратора або подайте запит нижче.
+          {{_('Потрібна роль викладача? Зверніться до адміністратора або подайте запит нижче.')}}
         </div>
         <form method="post" action="{{ url_for('users.request_teacher') }}">
           {{ form.csrf_token }}
-          <button class="btn btn-dark btn-sm">Подати запит на роль викладача</button>
+          <button class="btn btn-dark btn-sm">{{_('Подати запит на роль викладача')}}</button>
         </form>
       {% else %}
         <div class="alert alert-info mb-0">
-          Ви маєте права викладача. Перейдіть до <a class="alert-link" href="{{ url_for('users.dashboard') }}">панелі викладача</a>.
+          {{_('Ви маєте права викладача. Перейдіть до')}}
+          <a class="alert-link" href="{{ url_for('users.dashboard') }}">
+          {{_('панелі викладача')}}</a>.
         </div>
       {% endif %}
 

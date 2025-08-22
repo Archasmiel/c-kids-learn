@@ -2,12 +2,13 @@ from flask import Flask
 
 
 class Logger:
-    def msg(self, cause: str, s: str):
+    @staticmethod
+    def msg(cause: str, s: str):
         print(f'[{cause}]> {s}')
-    
+
     def info(self, s: str):
         self.msg('Info   ', s)
-    
+
     def warning(self, s: str):
         self.msg('Warning', s)
 

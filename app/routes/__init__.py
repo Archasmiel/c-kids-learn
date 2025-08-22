@@ -1,7 +1,8 @@
-from flask import Flask, Blueprint
-from importlib import import_module
-from ..services.logger import logger
 import os
+from importlib import import_module
+
+from flask import Flask, Blueprint
+from ..services.logger import logger
 
 
 def register(app: Flask):

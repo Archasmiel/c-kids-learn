@@ -1,5 +1,6 @@
-from ..services.database import db
 from sqlalchemy.sql import func
+from ..services.database import db
+
 
 class TeacherRequest(db.Model):
     __tablename__ = "teacher_requests"

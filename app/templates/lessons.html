@@ -8,7 +8,7 @@
 
 {% if lessons %}
   <ul class="list-group list-group-flush card card--elevated bg-surface shadow-sm overflow-hidden">
-    <h1 class="h3 text-light mx-3 mt-3">Теми</h1>
+    <h1 class="h3 text-light mx-3 mt-3">{{_('Теми')}}</h1>
     {% for l in lessons %}
       <li class="list-group-item bg-transparent text-body border-secondary border-opacity-25">
         <a class="row align-items-center text-decoration-none stretched-link" href="{{ url_for('basic.lesson', slug=l.slug) }}">
@@ -16,9 +16,9 @@
             <span class="badge rounded-pill text-light me-2">{{ loop.index }}</span>
           </div>
           <div class="col">
-            <div class="fw-semibold">{{ l.title }}</div>
+            <div class="fw-semibold">{{ _(l.title) }}</div>
             {% if l.summary %}
-              <div class="text-light small mt-1">{{ l.summary }}</div>
+              <div class="text-light small mt-1">{{ _(l.summary) }}</div>
             {% endif %}
           </div>
         </a>
@@ -26,6 +26,6 @@
     {% endfor %}
   </ul>
 {% else %}
-  <p class="text-muted">Поки що немає доступних тем.</p>
+  <p class="text-muted">{{_('Поки що немає доступних тем.')}}</p>
 {% endif %}
 {% endblock %}

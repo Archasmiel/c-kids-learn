@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
-from ..config import current_cfg as cfg
 from .database import db
+from ..config import current_cfg as cfg
 from ..models.user import User
 
 login_manager = LoginManager()

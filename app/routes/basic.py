@@ -1,10 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, current_app
-from flask_login import login_required
-from pathlib import Path
-import yaml
 import socket
-from ..runner import compile_and_run, run_code
+from pathlib import Path
+
+import yaml
+from flask import Blueprint, render_template, request, current_app
+from flask_login import login_required
 from ..config import current_cfg as cfg
+from ..runner import compile_and_run, run_code
 
 bp = Blueprint('basic', __name__)
 
@@ -17,7 +18,7 @@ def load_lesson(lesson_dir: Path):
 
 def lessons_list():
     items = []
-    for p in sorted(cfg.LESSONS_PATH.iterdir()):
+    for p in sorted(cfg.LESSONS_DIR.iterdir()):
         if (p / "lesson.yaml").exists():
             meta = load_lesson(p)
             items.append({"slug": p.name, "title": meta["title"], "summary": meta.get("summary", "")})
@@ -65,11 +66,12 @@ def lesson(slug):
     if request.method == "POST":
         user_input = request.form.get("user_input", "")
         ok, output, errors = compile_and_run(base, user_input=user_input)
-        return render_template("result.html", 
-                               ok=ok, output=output, errors=errors, 
+        return render_template("result.html",
+                               ok=ok, output=output, errors=errors,
                                meta=meta, slug=slug)
-    
+
     return render_template("lesson.html", meta=meta, slug=slug)
+
 
 @bp.route("/playground", methods=["GET", "POST"])
 @login_required
@@ -77,7 +79,7 @@ def playground():
     if request.method == "POST":
         user_input = request.form.get("code", "")
         retcode, output, errors = run_code(user_input)
-        return render_template("playground.html", 
+        return render_template("playground.html",
                                retcode=retcode, output=output, errors=errors)
-    
+
     return render_template("playground.html")
